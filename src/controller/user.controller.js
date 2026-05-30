@@ -34,14 +34,6 @@ const generateAccessAndRefreshTokens = async (userId) => {
 const registerUser = asyncHandler(async (req, res) => {
     const { fullName, email, username, password } = req.body;
 
-    if (
-        [fullName, email, username, password].some(
-            (field) => field?.trim() === ""
-        )
-    ) {
-        throw new ApiError(400, "All field is required33");
-    }
-
     const existedUser = await User.findOne({
         $or: [{ username }, { email }],
     });
@@ -88,15 +80,13 @@ const registerUser = asyncHandler(async (req, res) => {
 
     return res
         .status(201)
-        .json(new ApiResponse(200, createdUser, "Userregistered successfully"));
+        .json(
+            new ApiResponse(200, createdUser, "User registered successfully")
+        );
 });
 
 const loginUser = asyncHandler(async (req, res) => {
     const { email, username, password } = req.body;
-
-    if (!password || (!username && !email)) {
-        throw new ApiError(400, "Username/email and password are required");
-    }
 
     const userReg = await User.findOne({
         $or: [{ email }, { username }],
@@ -250,10 +240,6 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 const updateAccountDetails = asyncHandler(async (req, res) => {
     const { fullName, email } = req.body;
 
-    if (!fullName || !email) {
-        throw new ApiError(400, "All fields are required");
-    }
-
     const user = await User.findByIdAndUpdate(
         req.user?._id,
         {
@@ -282,8 +268,8 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 
     const avatar = await uploadOnCloudinary(avatarLocalPath);
 
-    if (!avatar.url) {
-        throw new ApiError(400, "Error while uploading on avatar");
+    if (!avatar || !avatar.url) {
+        throw new ApiError(400, "Error while uploading avatar");
     }
 
     const user = await User.findByIdAndUpdate(
@@ -310,8 +296,8 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 
     const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
-    if (!coverImage.url) {
-        throw new ApiError(400, "Error while uploading on avatar");
+    if (!coverImage || !coverImage.url) {
+        throw new ApiError(400, "Error while uploading cover image");
     }
 
     const user = await User.findByIdAndUpdate(
@@ -347,7 +333,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
             $lookup: {
                 from: "subscriptions",
                 localField: "_id",
-                foreignField: "channelname",
+                foreignField: "channel",
                 as: "subscribers",
             },
         },
@@ -460,7 +446,7 @@ const getWatchHistory = asyncHandler(async (req, res) => {
         .json(
             new ApiResponse(
                 200,
-                user[0].watchHistory,
+                user[0]?.watchHistory || [],
                 "watchHistory fetched successfully"
             )
         );

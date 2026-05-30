@@ -14,6 +14,13 @@ import {
 } from "../controller/user.controller.js";
 import { upload } from "../middleware/multer.middleware.js";
 import verifyJWT from "../middleware/auth.middleware.js";
+import { validate } from "../middleware/validation.middleware.js";
+import {
+    registerUserSchema,
+    loginUserSchema,
+    changeCurrentPasswordSchema,
+    updateAccountDetailsSchema,
+} from "../schema/user.schema.js";
 
 const router = Router();
 
@@ -28,21 +35,22 @@ router.route("/register").post(
             maxCount: 1,
         },
     ]),
+    validate(registerUserSchema),
     registerUser
 );
 
-router.route("/login").post(loginUser);
+router.route("/login").post(validate(loginUserSchema), loginUser);
 
 //secured route
 router.route("/logout").post(verifyJWT, logoutUser);
 
 router.route("/refresh_token").post(refreshAccessToken);
 
-router.route("/change-password").post(verifyJWT, changeCurrentPassword);
+router.route("/change-password").post(verifyJWT, validate(changeCurrentPasswordSchema), changeCurrentPassword);
 
 router.route("/current-user").get(verifyJWT, getCurrentUser);
 
-router.route("/update-account").patch(verifyJWT, updateAccountDetails);
+router.route("/update-account").patch(verifyJWT, validate(updateAccountDetailsSchema), updateAccountDetails);
 
 router
     .route("/avatar")

@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const videoSchema = new mongoose.Schema(
@@ -41,13 +40,14 @@ const videoSchema = new mongoose.Schema(
 
         owner: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "User ",
+            ref: "User",
         },
     },
 
     { timestamps: true }
 );
 
-videoSchema.plugin("")
+//Applied the pagination plugin. The original line had a blank string videoSchema.plugin(""), which caused a TypeError crash upon application boot.
+videoSchema.plugin(mongooseAggregatePaginate);
 
 export const Video = mongoose.model("Video", videoSchema);
