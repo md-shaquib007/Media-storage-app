@@ -11,8 +11,11 @@ const connectDB = async () => {
             `\nMongoDB connected !! , DB Hosted on ${connectionInstance.connection.host}`
         );
     } catch (error) {
-        console.log("Error : ", error);
-        process.exit(1);
+        console.log("MongoDB connection error: ", error);
+        if (!process.env.VERCEL) {
+            process.exit(1);
+        }
+        throw error;
     }
 };
 

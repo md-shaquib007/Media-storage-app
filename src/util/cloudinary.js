@@ -23,6 +23,14 @@ const uploadOnCloudinary = async (localFilePath) => {
             uploadResponse.url
         );
 
+        if (fs.existsSync(localFilePath)) {
+            try {
+                fs.unlinkSync(localFilePath);
+            } catch (unlinkError) {
+                console.error("Failed to delete local temp file after upload:", unlinkError);
+            }
+        }
+
         return uploadResponse;
     } catch (error) {
         //Added fs.existsSync check and error catching around fs.unlinkSync to prevent secondary unhandled filesystem exceptions when the local temp file is already removed or missing

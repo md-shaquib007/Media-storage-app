@@ -10,10 +10,14 @@ dotenv.config({
 
 connectDB()
     .then(() => {
-        app.listen(process.env.PORT || 8000, () => {
-            console.log("Server is running on port : ", process.env.PORT);
-        });
+        if (!process.env.VERCEL) {
+            app.listen(process.env.PORT || 8000, () => {
+                console.log("Server is running on port : ", process.env.PORT);
+            });
+        }
     })
     .catch((error) => {
         console.log("MongoDB connect failed : ", error);
     });
+
+export default app;
